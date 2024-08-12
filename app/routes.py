@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, abort
 from app import app, urls
-from .shortener import generate_short_url_code
+from .shortener import generate_short_url_code, generate_qr_code
 
 import validators
 
@@ -26,7 +26,12 @@ def index():
             "short_url_code": short_url_code
         })
 
-        return request.host_url + short_url_code    #domain + code (temporary output)
+        short_url = request.host_url + short_url_code    #domain + code
+
+        qr = generate_qr_code(short_url)
+
+        return render_template("index.html", short_url=short_url, qr_code_image=qr)
+
     return render_template("index.html")
 
 @app.route("/<short_url_code>")

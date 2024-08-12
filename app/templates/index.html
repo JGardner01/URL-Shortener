@@ -7,4 +7,11 @@
         <input type="url" name="url" required>
         <button type="submit">Submit</button>
     </form>
+
+    {%  if short_url %}
+        <h2>Short URL:</h2>
+        <a href="{{ short_url }}">{{ short_url }}</a>
+        <br>
+        <img src="data:image/png;base64, {{ qr_code_image }}" alt="QR Code">
+    {% endif %}
 {% endblock %}
