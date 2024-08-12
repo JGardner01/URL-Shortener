@@ -4,7 +4,7 @@
     <h1>URL Shortener</h1>
     <form method="POST" action="{{ url_for('index') }}">
         <label for="url">Enter URL</label>
-        <input type="text" name="url" required>
+        <input type="url" name="url" required>
         <button type="submit">Submit</button>
     </form>
 {% endblock %}
