@@ -15,6 +15,9 @@ def generate_short_url_code(length=5):
         if not short_url_exists:
             return short_url
 
+#def validate_custom_short_code:
+#to implement
+
 def generate_qr_code(url):
     qr = qrcode.make(url)
     buffer = BytesIO()

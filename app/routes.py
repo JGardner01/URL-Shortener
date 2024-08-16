@@ -9,16 +9,24 @@ import validators
 def index():
     if request.method == "POST":
         url = request.form.get("url")   #get string from form
+        custom_short_code = request.form.get("customShortCode")
 
         #check/validate here
         if not (url.startswith("http://") or url.startswith(("https://"))):
             url = "http://" + url
 
         if not (validators.url(url)):
-            return "URL entry error"    #temporary output
+            return render_template("index.html", error_message="Invalid URL provided.")
 
-        #generate code
-        short_url_code = generate_short_url_code()
+        #custom short code
+        if custom_short_code:
+            #needs validation
+            if urls.find_one({"short_url_code": custom_short_code}):
+                return render_template("index.html", error_message="Custom short code already exists.")
+            short_url_code = custom_short_code
+        else:
+            #generate code
+            short_url_code = generate_short_url_code()
 
         #insert to database
         urls.insert_one({
