@@ -1,5 +1,5 @@
-from flask import render_template, request, redirect, abort
-from app import app, urls
+from flask import render_template, request, redirect, abort, url_for
+from app import app, urls, users
 from .shortener import generate_short_url_code, validate_custom_short_code, generate_qr_code
 from .safe_browsing import check_url_safety
 
@@ -37,8 +37,8 @@ def index():
 
         #insert to database
         urls.insert_one({
-            "original_url": url,
-            "short_url_code": short_url_code
+            "short_url_code":   short_url_code,
+            "original_url":     url
         })
 
         short_url = request.host_url + short_url_code    #domain + code
@@ -46,7 +46,7 @@ def index():
 
         return render_template("index.html", short_url=short_url, qr_code_image=qr)
 
-    return render_template("index.html")
+    return render_template("register.html")
 
 @app.route("/<short_url_code>")
 def redirect_url(short_url_code):
@@ -55,3 +55,31 @@ def redirect_url(short_url_code):
         return redirect(url["original_url"])
     else:
         return abort(404)   #temporary error message for short url not found
+
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        confirm_password = request.form.get("confirm_password")
+
+        #may move validation and adding to seperate py script
+        username_exists = users.find_one({"username": username})
+        if username_exists:
+            return "user already exists"        #temporary
+
+        if password != confirm_password:
+            return "passwords do not match"     #temporary
+
+        users.insert_one({
+            "username": username,
+            "password": password})
+
+        #temporary testing
+        print("signed up")
+        #login user (to be implemented)
+        return redirect(url_for("index"))   #temporary redirect
+
+    return render_template("register.html")
