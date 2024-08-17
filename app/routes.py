@@ -1,6 +1,7 @@
 from flask import render_template, request, redirect, abort
 from app import app, urls
 from .shortener import generate_short_url_code, validate_custom_short_code, generate_qr_code
+from .safe_browsing import check_url_safety
 
 import validators
 
@@ -17,6 +18,11 @@ def index():
 
         if not (validators.url(url)):
             return render_template("index.html", error_message="Invalid URL provided.")
+
+        #google safe browsing
+        safe, error_message = check_url_safety(url)
+        if not safe:
+            return render_template("index.html", error_message=error_message)
 
         #custom short code
         if custom_short_code:
