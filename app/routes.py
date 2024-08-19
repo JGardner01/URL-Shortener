@@ -82,8 +82,13 @@ def register():
 
         #temporary testing
         print("signed up")
-        #login user (to be implemented)
-        return redirect(url_for("index"))   #temporary redirect
+        user_data = users.find_one({"username": username})
+        if user_data:
+            user = User(username=user_data["username"])
+            login_user(user)
+            return redirect(url_for("index"))   #temporary redirect
+        else:
+            print("error finding user data")    #debug
 
     return render_template("register.html")
 
