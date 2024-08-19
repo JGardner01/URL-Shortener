@@ -1,7 +1,7 @@
 from flask import Flask
 from pymongo import MongoClient
-
 from dotenv import load_dotenv
+from flask_bcrypt import Bcrypt
 
 load_dotenv() #google api key
 
@@ -14,6 +14,7 @@ db = client.url_shortener
 urls = db.urls
 users = db.users
 
+#for hashing passwords
+bcrypt = Bcrypt(app)
 
 from app import routes
-

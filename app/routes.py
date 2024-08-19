@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, abort, url_for
-from app import app, urls, users
+from app import app, urls, users, bcrypt
 from .shortener import generate_short_url_code, validate_custom_short_code, generate_qr_code
 from .safe_browsing import check_url_safety
 
@@ -73,9 +73,11 @@ def register():
         if password != confirm_password:
             return "passwords do not match"     #temporary
 
+        hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+
         users.insert_one({
             "username": username,
-            "password": password})
+            "password": hashed_password})
 
         #temporary testing
         print("signed up")
