@@ -1,8 +1,9 @@
 from flask import render_template, request, redirect, abort, url_for
+from flask_login import login_required, login_user, logout_user
 from app import app, urls, users, bcrypt
 from .shortener import generate_short_url_code, validate_custom_short_code, generate_qr_code
 from .safe_browsing import check_url_safety
-
+from .models import User
 import validators
 
 
@@ -46,11 +47,11 @@ def index():
 
         return render_template("index.html", short_url=short_url, qr_code_image=qr)
 
-    return render_template("register.html")
+    return render_template("index.html")
 
 @app.route("/<short_url_code>")
 def redirect_url(short_url_code):
-    url = urls.find_one({"short_url_code" : short_url_code});
+    url = urls.find_one({"short_url_code": short_url_code});
     if url:
         return redirect(url["original_url"])
     else:
@@ -85,3 +86,28 @@ def register():
         return redirect(url_for("index"))   #temporary redirect
 
     return render_template("register.html")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        user_data = users.find_one({"username": username})
+
+        if user_data and bcrypt.check_password_hash(user_data["password"], password):
+            user = User(username=user_data["username"])
+            login_user(user)
+            return redirect(url_for("index"))
+        else:
+            print("invalid/error")
+
+    return render_template("login.html")
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    #inform user
+    return redirect(url_for("index"))
