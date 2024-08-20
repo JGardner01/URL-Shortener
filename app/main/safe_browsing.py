@@ -1,8 +1,8 @@
+from flask import current_app
 import requests
-import os
 
 def check_url_safety(url):
-    api_key = os.getenv("GOOGLE_API_KEY")
+    api_key = current_app.config["GOOGLE_API_KEY"]
     endpoint = f"https://safebrowsing.googleapis.com/v4/threatMatches:find?key={api_key}"
     payload = {
         "client": {

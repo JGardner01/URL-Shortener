@@ -1,21 +1,18 @@
 from flask import Flask
 from pymongo import MongoClient
-from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from app.auth.models import User
-import os
 
-def create_app():
-    load_dotenv()  #load environment variables (google api key and secret key)
-
+def create_app(config):
     #initialise flask app
     app = Flask(__name__, template_folder="templates", static_folder="static")
-    app.secret_key = os.getenv("SECRET_KEY")
+    app.config.from_object(config)
+
 
     #connect to mongo db
-    client = MongoClient("localhost", 27017)
-    db = client.url_shortener
+    client = MongoClient(app.config["MONGO_URI"])
+    db = client.get_default_database()
     app.db = db
     app.urls = db.urls
     app.users = db.users
