@@ -59,7 +59,7 @@ def login():
             login_user(user)
             return redirect(url_for("main.index"))
         else:
-            print("invalid/error")
+            print("invalid/error")  #temp debug
 
     return render_template("login.html")
 
@@ -67,5 +67,5 @@ def login():
 @login_required
 def logout():
     logout_user()
-    #inform user
+    #implement informing user
     return redirect(url_for("main.index"))

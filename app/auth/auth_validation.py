@@ -36,6 +36,9 @@ def validate_new_password(password, confirm_password):
     #password must include at least 1 special character
     if not re.search(r"[!#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~]", password):
         return False, "Password must contain at least one special character."
+    #password must not contain spaces
+    if " " in password:
+        return False, "Password must not contain spaces."
     #password and confirm password must match
     if password != confirm_password:
         return False, "Passwords do not match."
