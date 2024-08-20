@@ -1,38 +1,48 @@
 from flask import Flask
 from pymongo import MongoClient
 from dotenv import load_dotenv
-import os
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-from .models import User
+from app.auth.models import User
+import os
 
-load_dotenv() #google api key
+def create_app():
+    load_dotenv()  #load environment variables (google api key and secret key)
 
-#initialise app
-app = Flask(__name__, template_folder="templates")
-app.secret_key = os.getenv("SECRET_KEY")
+    #initialise flask app
+    app = Flask(__name__, template_folder="templates", static_folder="static")
+    app.secret_key = os.getenv("SECRET_KEY")
 
-#connect and set up mongo db
-client = MongoClient("localhost", 27017)
-db = client.url_shortener
-urls = db.urls
-users = db.users
+    #connect to mongo db
+    client = MongoClient("localhost", 27017)
+    db = client.url_shortener
+    app.db = db
+    app.urls = db.urls
+    app.users = db.users
 
-#initialise login manager
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = "login"  #redirect
+    #initialise bcrypt for hashing passwords
+    bcrypt = Bcrypt(app)
+    app.bcrypt = bcrypt
 
-#for hashing passwords
-bcrypt = Bcrypt(app)
+    #initialise login manager
+    login_manager = LoginManager(app)
+    login_manager.login_view = "auth.login"  #redirect
 
-from app import routes
+    @login_manager.user_loader
+    def load_user(username):
+        user_data = app.users.find_one({"username": username})
+
+        if user_data:
+            return User(username=user_data["username"])
+        return None
 
 
-@login_manager.user_loader
-def load_user(username):
-    user_data = users.find_one({"username": username})
+    #import and register blueprints
+    from app.main import main as main_blueprint
+    from app.auth import auth as auth_blueprint
 
-    if user_data:
-        return User(username=user_data["username"])
-    return None
+    app.register_blueprint(main_blueprint)
+    app.register_blueprint(auth_blueprint)
+
+    return app
+

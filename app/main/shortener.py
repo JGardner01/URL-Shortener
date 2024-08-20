@@ -1,13 +1,15 @@
-from app import urls
+from flask import current_app
+from io import BytesIO
 import string
 import random
 import re
 import qrcode
-from io import BytesIO
 import base64
 
 #length set at temporary value 5
 def generate_short_url_code(length=5):
+    urls = current_app.urls
+
     chars = string.ascii_letters + string.digits
 
     while True:
@@ -26,6 +28,7 @@ def validate_custom_short_code(custom_short_code):
     if custom_short_code.startswith("-") or custom_short_code.endswith("-"):
         return False, "Custom short code cannot start or end with a hyphen(-)."
 
+    urls = current_app.urls
     if urls.find_one({"short_url_code": custom_short_code}):
         return False, "Custom short code already exists."
 
