@@ -19,6 +19,10 @@ def generate_short_url_code(length=5):
             return short_url
 
 def validate_custom_short_code(custom_short_code):
+    urls = current_app.urls
+    if urls.find_one({"short_url_code": custom_short_code}):
+        return False, "Custom short code already exists."
+
     if not (3 <= len(custom_short_code) <= 20):
         return False, "Custom short code must be between 3 and 20 characters."
 
@@ -27,10 +31,6 @@ def validate_custom_short_code(custom_short_code):
 
     if custom_short_code.startswith("-") or custom_short_code.endswith("-"):
         return False, "Custom short code cannot start or end with a hyphen(-)."
-
-    urls = current_app.urls
-    if urls.find_one({"short_url_code": custom_short_code}):
-        return False, "Custom short code already exists."
 
     return True, None
 

@@ -2,39 +2,42 @@ from flask import render_template, request, redirect, url_for, current_app
 from flask_login import login_required, login_user, logout_user
 from . import auth
 from .models import User
-#create a validation file
-
+from .auth_validation import validate_new_username, validate_new_password
 
 @auth.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
+        #get form inputs
         username = request.form.get("username")
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
 
-        #may move validation and adding to seperate py script
-        users = current_app.users
-        username_exists = users.find_one({"username": username})
-        if username_exists:
-            return "user already exists"        #temporary
+        valid_username, error_message = validate_new_username(username)
+        if not valid_username:
+            return error_message    #temp
 
-        if password != confirm_password:
-            return "passwords do not match"     #temporary
+        valid_password, error_message = validate_new_password(password, confirm_password)
+        if not valid_password:
+            return error_message    #temp
+
+        #username and passwords are both valid
 
         bcrypt = current_app.bcrypt
         hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
 
-        users.insert_one({
-            "username": username,
-            "password": hashed_password})
+        users = current_app.users
+        if valid_username and valid_password:   #ensure that the code definitly does not touch the db collection unless valid
+            users.insert_one({
+                "username": username,
+                "password": hashed_password})
 
-        #temporary testing
-        print("signed up")
+            print("signed up")        #temporary testing
+
         user_data = users.find_one({"username": username})
         if user_data:
             user = User(username=user_data["username"])
             login_user(user)
-            return redirect(url_for("main.index"))   #temporary redirect
+            return redirect(url_for("main.index"))   #temporary redirect - change to dashboard
         else:
             print("error finding user data")    #debug
 
