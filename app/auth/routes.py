@@ -3,6 +3,7 @@ from flask_login import login_required, login_user, logout_user
 from . import auth
 from .models import User
 from .auth_validation import validate_new_username, validate_new_password
+from .session_util import transfer_guest_urls
 
 @auth.route("/register", methods=["GET", "POST"])
 def register():
@@ -37,6 +38,9 @@ def register():
         if user_data:
             user = User(username=user_data["username"])
             login_user(user)
+
+            transfer_guest_urls()
+
             return redirect(url_for("main.index"))   #temporary redirect - change to dashboard
         else:
             print("error finding user data")    #debug
@@ -57,6 +61,9 @@ def login():
         if user_data and bcrypt.check_password_hash(user_data["password"], password):
             user = User(username=user_data["username"])
             login_user(user)
+
+            transfer_guest_urls()
+
             return redirect(url_for("main.index"))
         else:
             print("invalid/error")  #temp debug

@@ -90,9 +90,9 @@ def list_urls():
         if guest_url_codes:
             guest_urls = list(urls.find({"short_url_code": {"$in": guest_url_codes}}))
             print("guest urls: ", guest_urls)
+            session.pop("guest_url_codes", None)     #testing
         else:
             print("no guest codes")
 
-    session.clear()     #testing
 
     return render_template("index.html")
