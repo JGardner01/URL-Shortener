@@ -12,6 +12,7 @@ def index():
         #get form values
         url = request.form.get("url")
         custom_short_code = request.form.get("customShortCode")
+        password = request.form.get("password")
 
         #validate URL here
         if not (url.startswith("http://") or url.startswith(("https://"))):
@@ -35,6 +36,7 @@ def index():
             #no custom short code -> generate code
             short_url_code = generate_short_url_code()
 
+
         url_data = {
             "short_url_code":   short_url_code,
             "original_url":     url,
@@ -43,6 +45,7 @@ def index():
             "click_count":      0
         }
 
+        #user id/guest
         if current_user.is_authenticated:
             url_data["user_id"] = current_user.get_id()
         else:
@@ -50,6 +53,12 @@ def index():
                 session["guest_url_codes"] = []
             session["guest_url_codes"].append(short_url_code)
             session.modified = True
+
+        #password protection
+        if password:
+            bcrypt = current_app.bcrypt
+            url_data["password"] = bcrypt.generate_password_hash(password).decode("utf-8")
+            #implement backend validation
 
         #insert to database
         urls = current_app.urls
