@@ -2,18 +2,19 @@ from flask import render_template, request, redirect, abort, current_app
 from . import main
 from .shortener import generate_short_url_code, validate_custom_short_code, generate_qr_code
 from .safe_browsing import check_url_safety
+from datetime import datetime, timezone
 import validators
 
 @main.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        url = request.form.get("url")   #get string from form
+        #get form values
+        url = request.form.get("url")
         custom_short_code = request.form.get("customShortCode")
 
         #validate URL here
         if not (url.startswith("http://") or url.startswith(("https://"))):
             url = "http://" + url
-
         if not (validators.url(url)):
             return render_template("index.html", error_message="Invalid URL provided.")
 
@@ -37,7 +38,10 @@ def index():
         urls = current_app.urls
         urls.insert_one({
             "short_url_code":   short_url_code,
-            "original_url":     url
+            "original_url":     url,
+            "created_at":       datetime.now(timezone.utc),
+            "last_accessed":    None,
+            "click_count":      0
         })
 
         short_url = request.host_url + short_url_code    #domain + code
@@ -50,7 +54,13 @@ def index():
 @main.route("/<short_url_code>")
 def redirect_url(short_url_code):
     urls = current_app.urls
-    url = urls.find_one({"short_url_code": short_url_code});
+    url = urls.find_one_and_update(
+        {"short_url_code": short_url_code},                             #find url with short url code
+        {"$inc": {"click_count": 1},                                    #increment click count by 1
+         "$set": {"last_accessed": datetime.now(timezone.utc)}},        #set last accessed time to now
+        return_document=True                                            #return updated document
+    )
+
     if url:
         return redirect(url["original_url"])
     else:
