@@ -71,18 +71,33 @@ def index():
 
     return render_template("index.html")
 
-@main.route("/<short_url_code>")
+@main.route("/<short_url_code>", methods=["GET", "POST"])
 def redirect_url(short_url_code):
     urls = current_app.urls
-    url = urls.find_one_and_update(
-        {"short_url_code": short_url_code},                             #find url with short url code
-        {"$inc": {"click_count": 1},                                    #increment click count by 1
-         "$set": {"last_accessed": datetime.now(timezone.utc)}},        #set last accessed time to now
-        return_document=True                                            #return updated document
-    )
+    url = urls.find_one({"short_url_code": short_url_code})
 
     if url:
-        return redirect(url["original_url"])
+        if url["password"]:
+            if request.method == "POST":
+                password = request.form.get("password")
+                bcrypt = current_app.bcrypt
+                if bcrypt.check_password_hash(url["password"], password):
+                    urls.update_one(
+                        {"short_url_code": short_url_code},
+                        {"$inc": {"click_count": 1},                                    #increment click count by 1
+                         "$set": {"last_accessed": datetime.now(timezone.utc)}},        #set last accessed time to now
+                    )
+                    return redirect(url["original_url"])
+                else:
+                    return render_template("protected_redirect.html", error_message="Incorrect password.")
+            return render_template("protected_redirect.html")       #get request
+        else:
+            urls.update_one(
+                {"short_url_code": short_url_code},
+                {"$inc": {"click_count": 1},                                    #increment click count by 1
+                 "$set": {"last_accessed": datetime.now(timezone.utc)}},        #set last accessed time to now
+            )
+            return redirect(url["original_url"])
     else:
         return abort(404)   #temporary error message for short url not found
 
