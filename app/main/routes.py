@@ -1,4 +1,5 @@
-from flask import render_template, request, redirect, abort, current_app
+from flask import render_template, request, redirect, abort, current_app, session
+from flask_login import current_user
 from . import main
 from .shortener import generate_short_url_code, validate_custom_short_code, generate_qr_code
 from .safe_browsing import check_url_safety
@@ -34,15 +35,25 @@ def index():
             #no custom short code -> generate code
             short_url_code = generate_short_url_code()
 
-        #insert to database
-        urls = current_app.urls
-        urls.insert_one({
+        url_data = {
             "short_url_code":   short_url_code,
             "original_url":     url,
             "created_at":       datetime.now(timezone.utc),
             "last_accessed":    None,
             "click_count":      0
-        })
+        }
+
+        if current_user.is_authenticated:
+            url_data["user_id"] = current_user.get_id()
+        else:
+            if "guest_url_codes" not in session:
+                session["guest_url_codes"] = []
+            session["guest_url_codes"].append(short_url_code)
+            session.modified = True
+
+        #insert to database
+        urls = current_app.urls
+        urls.insert_one(url_data)
 
         short_url = request.host_url + short_url_code    #domain + code
         qr = generate_qr_code(short_url)
@@ -65,3 +76,23 @@ def redirect_url(short_url_code):
         return redirect(url["original_url"])
     else:
         return abort(404)   #temporary error message for short url not found
+
+#debug testing route
+@main.route("/my_urls")
+def list_urls():
+    urls = current_app.urls
+
+    if current_user.is_authenticated:
+        user_urls = list(urls.find({"user_id": current_user.get_id()}))
+        print("user urls: ", user_urls)
+    else:
+        guest_url_codes = session.get("guest_url_codes", [])
+        if guest_url_codes:
+            guest_urls = list(urls.find({"short_url_code": {"$in": guest_url_codes}}))
+            print("guest urls: ", guest_urls)
+        else:
+            print("no guest codes")
+
+    session.clear()     #testing
+
+    return render_template("index.html")

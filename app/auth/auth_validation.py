@@ -14,7 +14,7 @@ def validate_new_username(username):
     if not username[0].isalpha():
         return False, "Username must start with a letter."
     #user name must contain only letters and numbers
-    if not re.match("^[a-zA-Z0-9]$", username):
+    if not re.match("^[a-zA-Z0-9]+$", username):
         return False, "Username may only contain letters and numbers."
 
     return True, None
