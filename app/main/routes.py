@@ -14,7 +14,9 @@ def index():
         #get form values
         url = request.form.get("url")
         custom_short_code = request.form.get("customShortCode")
-        expiration = request.form.get("expiration")
+        expiration_date = request.form.get("expirationDate")
+        timezone_offset = request.form.get("timezoneOffset")
+        click_limit = request.form.get("clickLimit")
         password = request.form.get("password")
 
         #validate URL here
@@ -40,17 +42,23 @@ def index():
             short_url_code = generate_short_url_code()
 
         #URL expiration
-        if expiration:
-            expiration = datetime.fromisoformat(expiration)
+        if expiration_date:
+            expiration_date = datetime.fromisoformat(expiration_date)
+            if timezone_offset:
+                expiration_date = expiration_date - timedelta(minutes=int(timezone_offset))
+            expiration_date = expiration_date.astimezone(timezone.utc)
+
+            #if expiration_date.tzinfo is None:
+            #    expiration_date = expiration_date.replace(tzinfo=timezone.utc)
         else:
-            expiration = datetime.now(timezone.utc) + timedelta(DEFAULT_EXPIRATION)
+            expiration_date = datetime.now(timezone.utc) + timedelta(DEFAULT_EXPIRATION)
 
         #create url data
         url_data = {
             "short_url_code":   short_url_code,
             "original_url":     url,
             "created_at":       datetime.now(timezone.utc),
-            "expiration":       expiration,
+            "expiration_date":  expiration_date,
             "last_accessed":    None,
             "click_count":      0
         }
@@ -64,11 +72,19 @@ def index():
             session["guest_url_codes"].append(short_url_code)
             session.modified = True
 
+        #click limit
+        if click_limit:
+            print(click_limit)
+            if click_limit.isdigit():
+                url_data["click_limit"] = click_limit
+            else:
+                return render_template("index.html", error_message="Click limit must be an integer.")
+
         #password protection
         if password:
             bcrypt = current_app.bcrypt
-            url_data["password"] = bcrypt.generate_password_hash(password).decode("utf-8")
             #implement backend validation
+            url_data["password"] = bcrypt.generate_password_hash(password).decode("utf-8")
 
         #insert to database
         urls = current_app.urls
@@ -87,6 +103,17 @@ def redirect_url(short_url_code):
     url = urls.find_one({"short_url_code": short_url_code})
 
     if url:
+        #check if the url has expired
+        #convert to timeaware datetime
+        if url["expiration_date"].tzinfo is None:
+            url["expiration_date"] = url["expiration_date"].replace(tzinfo=timezone.utc)
+
+        if url["expiration_date"] < datetime.now(timezone.utc):
+            urls.delete_one({"short_url_code": short_url_code})
+            return abort(404)   #temporary error message for short url not found
+
+
+        #check if there the url is password protected
         if "password" in url and url["password"]:
             if request.method == "POST":
                 password = request.form.get("password")

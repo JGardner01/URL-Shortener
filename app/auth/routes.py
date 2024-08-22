@@ -11,7 +11,7 @@ def register():
         #get form inputs
         username = request.form.get("username")
         password = request.form.get("password")
-        confirm_password = request.form.get("confirm_password")
+        confirm_password = request.form.get("confirmPassword")
 
         valid_username, error_message = validate_new_username(username)
         if not valid_username:

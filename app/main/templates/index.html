@@ -24,8 +24,12 @@
                                 <input type="text" name="customShortCode" id="customShortCode" class="form-control" placeholder="Custom Short Code">
                             </div>
                             <div class="form-group mb-2">
-                                <label for="expiration">Expiration Date (Default 30 Days)</label>
-                                <input type="datetime-local" name="expiration" id="expiration" class="form-control">
+                                <label for="expirationDate">Expiration Date (Default: 30 Days)</label>
+                                <input type="datetime-local" name="expirationDate" id="expirationDate" class="form-control">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label for="clickLimit">Click Limit</label>
+                                <input type="number" name="clickLimit" id="clickLimit" class="form-control">
                             </div>
                             <div class="form-group mb-2">
                                 <label for="password">Password Protection</label>
@@ -59,4 +63,10 @@
             <p><a href="data:image/png;base64,{{ qr_code_image }}" download={{ short_url }}.png class="btn btn-secondary mt-2">Download QR Code</a></p>
         </div>
     {% endif %}
+
+
+
+
+    <script src="{{ url_for('main.static', filename='js/index.js') }}"></script>
+
 {% endblock %}
