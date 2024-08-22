@@ -3,8 +3,10 @@ from flask_login import current_user
 from . import main
 from .shortener import generate_short_url_code, validate_custom_short_code, generate_qr_code
 from .safe_browsing import check_url_safety
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import validators
+
+DEFAULT_EXPIRATION = 30
 
 @main.route("/", methods=["GET", "POST"])
 def index():
@@ -12,6 +14,7 @@ def index():
         #get form values
         url = request.form.get("url")
         custom_short_code = request.form.get("customShortCode")
+        expiration = request.form.get("expiration")
         password = request.form.get("password")
 
         #validate URL here
@@ -36,11 +39,18 @@ def index():
             #no custom short code -> generate code
             short_url_code = generate_short_url_code()
 
+        #URL expiration
+        if expiration:
+            expiration = datetime.fromisoformat(expiration)
+        else:
+            expiration = datetime.now(timezone.utc) + timedelta(DEFAULT_EXPIRATION)
 
+        #create url data
         url_data = {
             "short_url_code":   short_url_code,
             "original_url":     url,
             "created_at":       datetime.now(timezone.utc),
+            "expiration":       expiration,
             "last_accessed":    None,
             "click_count":      0
         }
@@ -77,7 +87,7 @@ def redirect_url(short_url_code):
     url = urls.find_one({"short_url_code": short_url_code})
 
     if url:
-        if url["password"]:
+        if "password" in url and url["password"]:
             if request.method == "POST":
                 password = request.form.get("password")
                 bcrypt = current_app.bcrypt
