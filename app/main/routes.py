@@ -47,9 +47,6 @@ def index():
             if timezone_offset:
                 expiration_date = expiration_date - timedelta(minutes=int(timezone_offset))
             expiration_date = expiration_date.astimezone(timezone.utc)
-
-            #if expiration_date.tzinfo is None:
-            #    expiration_date = expiration_date.replace(tzinfo=timezone.utc)
         else:
             expiration_date = datetime.now(timezone.utc) + timedelta(DEFAULT_EXPIRATION)
 
@@ -76,7 +73,7 @@ def index():
         if click_limit:
             print(click_limit)
             if click_limit.isdigit():
-                url_data["click_limit"] = click_limit
+                url_data["click_limit"] = int(click_limit)
             else:
                 return render_template("index.html", error_message="Click limit must be an integer.")
 
@@ -108,7 +105,7 @@ def redirect_url(short_url_code):
         if url["expiration_date"].tzinfo is None:
             url["expiration_date"] = url["expiration_date"].replace(tzinfo=timezone.utc)
 
-        if url["expiration_date"] < datetime.now(timezone.utc):
+        if url["expiration_date"] < datetime.now(timezone.utc) or ("click_limit" in url and url["click_count"] >= url["click_limit"]):
             urls.delete_one({"short_url_code": short_url_code})
             return abort(404)   #temporary error message for short url not found
 
