@@ -71,7 +71,6 @@ def index():
 
         #click limit
         if click_limit:
-            print(click_limit)
             if click_limit.isdigit():
                 url_data["click_limit"] = int(click_limit)
             else:

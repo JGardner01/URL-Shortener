@@ -3,6 +3,7 @@ from pymongo import MongoClient
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from app.auth.models import User
+from app.main.urls_cleanup import start_scheduler
 
 def create_app(config):
     #initialise flask app
@@ -40,6 +41,8 @@ def create_app(config):
 
     app.register_blueprint(main_blueprint)
     app.register_blueprint(auth_blueprint)
+
+    start_scheduler(app)
 
     return app
 
