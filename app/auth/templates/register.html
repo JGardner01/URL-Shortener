@@ -1,28 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Register</h1>
-    <form method="POST" action="{{ url_for("auth.register")}}" onsubmit="return checkPasswordsMatch()">
-        <!-- email later for reminders and analytics? -->
 
-        <label for="username">Username</label>
-        <input type="text" name="username" required
-               pattern="[A-Za-z][A-Za-z0-9]{2,14}" minlength="3" maxlength="15"
-               title="Username must be 3-15 characters long, start with a letter, and contain only letters and numbers.">
-
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required
-               pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_])(?!.*\s).{8,}$" minlength="8"
-               title="Password must be at least 8 characters long, include at least one uppercase letter, one lowercase letter, one number, and one special character. No spaces are allowed.">
-
-        <label for="confirm_password">Confirm Password</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" required>
-
-        <button type="submit">Register</button>
-    </form>
-
-    <!-- link to login page if account exists -->
-
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h1 class="text-center mb-4">Register</h1>
+                <form method="POST" action="{{ url_for("auth.register")}}" onsubmit="return checkPasswordsMatch()">
+                    <!-- email later for reminders and analytics? -->
+                    <div class="form-group mb-3">
+                        <label for="username">Username</label>
+                        <input type="text" name="username" class="form-control" required
+                               pattern="[A-Za-z][A-Za-z0-9]{2,14}" minlength="3" maxlength="15"
+                               title="Username must be 3-15 characters long, start with a letter, and contain only letters and numbers.">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" class="form-control" required
+                               pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_])(?!.*\s).{8,}$" minlength="8"
+                               title="Password must be at least 8 characters long, include at least one uppercase letter, one lowercase letter, one number, and one special character. No spaces are allowed.">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="confirm_password">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                </form>
+                <div class="mt-3 text-center">
+                    <p>Already have an account? <a href="{{ url_for("auth.login") }}">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="{{ url_for('auth.static', filename='js/register.js') }}"></script>
 {% endblock %}

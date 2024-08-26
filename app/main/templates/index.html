@@ -13,9 +13,9 @@
                     </div>
 
                     <!-- Optional Inputs -->
-                    <div class="form-group mb-3">
-                        <a class="btn btn-link" data-bs-toggle="collapse" href="#customOptions" role="button" aria-expanded="false" aria-controls="customOptions">
-                            Customise (Optional)
+                    <div class="form-group mt-3">
+                        <a class="btn btn-outline-primary btn-sm w-100 mb-2" data-bs-toggle="collapse" href="#customOptions" role="button" aria-expanded="false" aria-controls="customOptions">
+                            Customise (Optional) <span class="bi bi-arrow-down-circle"></span>
                         </a>
                         <div class="collapse" id="customOptions">
                             <!-- Custom Short Code -->
@@ -63,8 +63,6 @@
             <p><a href="data:image/png;base64,{{ qr_code_image }}" download={{ short_url }}.png class="btn btn-secondary mt-2">Download QR Code</a></p>
         </div>
     {% endif %}
-
-
 
 
     <script src="{{ url_for('main.static', filename='js/index.js') }}"></script>
