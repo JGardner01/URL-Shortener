@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% set display_navbar = True %}
 {% block content %}
     <div class="container mt-5">
         <div class="row justify-content-center">
@@ -8,14 +8,17 @@
                 <form method="POST" action="{{ url_for("main.index") }}">
                     <!-- Enter URL Input (mandatory) -->
                     <div class="form-group mb-3">
-                        <label for="url">Enter URL</label>
+                        <label for="url" class="form-label">
+                            <i class="bi bi-link-45deg"></i> URL
+                        </label>
                         <input type="url" name="url" id="url" class="form-control" placeholder="https://example.com" required>
                     </div>
 
                     <!-- Optional Inputs -->
                     <div class="form-group mt-3">
-                        <a class="btn btn-outline-primary btn-sm w-100 mb-2" data-bs-toggle="collapse" href="#customOptions" role="button" aria-expanded="false" aria-controls="customOptions">
-                            Customise (Optional) <span class="bi bi-arrow-down-circle"></span>
+                        <a class="btn btn-outline-primary btn-sm w-100 mb-2 d-flex justify-content-between align-items-center"
+                           data-bs-toggle="collapse" href="#customOptions" role="button" aria-expanded="false" aria-controls="customOptions">
+                            Customise (Optional) <i class="bi bi-arrow-down-circle ms-auto"></i>
                         </a>
                         <div class="collapse" id="customOptions">
                             <!-- Custom Short Code -->

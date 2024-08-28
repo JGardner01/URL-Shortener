@@ -153,3 +153,11 @@ def list_urls():
 
 
     return render_template("index.html")
+
+@main.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
+@main.route("/about")
+def about():
+    return render_template("about.html")
