@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% set display_navbar = True %}
 {% block content %}
+
+    <link rel="stylesheet" href="{{ url_for("main.static", filename="css/index.css") }}">
+
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
@@ -16,7 +19,7 @@
 
                     <!-- Optional Inputs -->
                     <div class="form-group mt-3">
-                        <a class="btn btn-outline-primary btn-sm w-100 mb-2 d-flex justify-content-between align-items-center"
+                        <a class="btn btn-outline-primary btn-sm w-100 mb-2 d-flex justify-content-between align-items-center rotate-icon"
                            data-bs-toggle="collapse" href="#customOptions" role="button" aria-expanded="false" aria-controls="customOptions">
                             Customise (Optional) <i class="bi bi-arrow-down-circle ms-auto"></i>
                         </a>
@@ -32,7 +35,7 @@
                             </div>
                             <div class="form-group mb-2">
                                 <label for="clickLimit">Click Limit</label>
-                                <input type="number" name="clickLimit" id="clickLimit" class="form-control">
+                                <input type="number" name="clickLimit" id="clickLimit" class="form-control" placeholder="0">
                             </div>
                             <div class="form-group mb-2">
                                 <label for="password">Password Protection</label>

@@ -1,0 +1,11 @@
+.rotate-icon i {
+    transition: 0.3s ease-in-out;
+}
+
+.rotate-icon.collapsed i {
+    transform: rotate(0deg);
+}
+
+.rotate-icon:not(.collapsed) i {
+    transform: rotate(180deg);
+}
