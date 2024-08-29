@@ -1,4 +1,5 @@
-from flask import current_app
+from flask import current_app, session
+from flask_login import current_user
 from io import BytesIO
 import string
 import random
@@ -41,3 +42,15 @@ def generate_qr_code(url):
     qr.save(buffer, format("png"))
     buffer.seek(0)
     return base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+def get_users_urls():
+    urls = current_app.urls
+
+    if current_user.is_authenticated:
+        return list(urls.find({"user_id": current_user.get_id()}))
+    else:
+        guest_url_codes = session.get("guest_url_codes", [])
+        if guest_url_codes:
+            return list(urls.find({"short_url_code": {"$in": guest_url_codes}}))
+        else:
+            return []

@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, abort, current_app, session
 from flask_login import current_user
 from . import main
-from .shortener import generate_short_url_code, validate_custom_short_code, generate_qr_code
+from .shortener import generate_short_url_code, validate_custom_short_code, generate_qr_code, get_users_urls
 from .safe_browsing import check_url_safety
 from datetime import datetime, timezone, timedelta
 import validators
@@ -134,29 +134,10 @@ def redirect_url(short_url_code):
     else:
         return abort(404)   #temporary error message for short url not found
 
-#debug testing route
-@main.route("/my_urls")
-def list_urls():
-    urls = current_app.urls
-
-    if current_user.is_authenticated:
-        user_urls = list(urls.find({"user_id": current_user.get_id()}))
-        print("user urls: ", user_urls)
-    else:
-        guest_url_codes = session.get("guest_url_codes", [])
-        if guest_url_codes:
-            guest_urls = list(urls.find({"short_url_code": {"$in": guest_url_codes}}))
-            print("guest urls: ", guest_urls)
-            session.pop("guest_url_codes", None)     #testing
-        else:
-            print("no guest codes")
-
-
-    return render_template("index.html")
-
 @main.route("/dashboard")
 def dashboard():
-    return render_template("dashboard.html")
+    user_urls = get_users_urls()
+    return render_template("dashboard.html", user_urls=user_urls)
 
 @main.route("/about")
 def about():

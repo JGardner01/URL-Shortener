@@ -1,5 +1,45 @@
 {% extends "base.html" %}
-{% block content %}
 {% set display_navbar = True %}
-    <h1>Dashboard</h1>
+
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Dashboard</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <h2>Your Shortened URLs</h2>
+                {% if user_urls %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="text-left">Short URL</th>
+                                    <th scope="col" class="text-left">Original URL</th>
+                                    <th scope="col" class="text-left">Last Accessed Date</th>
+                                    <th scope="col" class="text-left">Clicks</th>
+                                    <th scope="col" class="text-left">Expiration Date</th>
+                                    <th scope="col" class="text-left">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for url in user_urls %}
+                                <tr>
+                                    <td><a href="{{ url.short_url_code }}">{{ url.short_url_code }}</a></td></td>
+                                    <td>{{ url.original_url }}</td>
+                                    <td>{{ url.last_accessed or "Never"}}</td>
+                                    <td>{{ url.click_count }}</td>
+                                    <td>{{ url.expiration_date.strftime("%Y-%m-%d %H:%M")}}</td>
+                                    <td><a href="#" class="btn btn-sm btn-primary">Edit</a></td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p>You have no shortened URLs.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
