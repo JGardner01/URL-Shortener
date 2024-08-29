@@ -6,6 +6,7 @@ import random
 import re
 import qrcode
 import base64
+from datetime import datetime, timezone
 
 #length set at temporary value 5
 def generate_short_url_code(length=5):
@@ -45,12 +46,35 @@ def generate_qr_code(url):
 
 def get_users_urls():
     urls = current_app.urls
+    current_time = datetime.now(timezone.utc)
 
     if current_user.is_authenticated:
-        return list(urls.find({"user_id": current_user.get_id()}))
+        return list(urls.find({
+            "user_id": current_user.get_id(),
+            "$and": [
+                {"expiration_date": {"$gte": current_time}},
+                {"$or": [
+                    {"click_limit": {"$exists": False}},
+                    {"$expr": {"$lt": ["$click_count", "$click_limit"]}}
+                    ]}
+            ]
+        }))
     else:
         guest_url_codes = session.get("guest_url_codes", [])
         if guest_url_codes:
-            return list(urls.find({"short_url_code": {"$in": guest_url_codes}}))
+            return list(urls.find({
+                "short_url_code": {"$in": guest_url_codes},
+                "$and": [
+                    {"expiration_date": {"$gte": current_time}},
+                    {"$or": [
+                        {"click_limit": {"$exists": False}},
+                        {"$expr": {"$lt": ["$click_count", "$click_limit"]}}
+                    ]}
+                ]
+            }))
         else:
             return []
+
+
+
+    return url_codes

@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% set display_navbar = True %}
 
-
 {% block content %}
-    <div class="container mt-5">
+    <link rel="stylesheet" href="{{ url_for("main.static", filename="css/dashboard.css") }}">
+
+    <div class="container-fluid mt-5">
         <h1 class="mb-4">Dashboard</h1>
         <div class="row justify-content-center">
             <div class="col-md-12">
@@ -13,21 +14,21 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th scope="col" class="text-left">Short URL</th>
-                                    <th scope="col" class="text-left">Original URL</th>
-                                    <th scope="col" class="text-left">Last Accessed Date</th>
-                                    <th scope="col" class="text-left">Clicks</th>
-                                    <th scope="col" class="text-left">Expiration Date</th>
-                                    <th scope="col" class="text-left">Actions</th>
+                                    <th scope="col">Short URL</th>
+                                    <th scope="col">Original URL</th>
+                                    <th scope="col">Last Accessed Date</th>
+                                    <th scope="col">Clicks</th>
+                                    <th scope="col">Expiration Date</th>
+                                    <th scope="col">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                             {% for url in user_urls %}
                                 <tr>
                                     <td><a href="{{ url.short_url_code }}">{{ url.short_url_code }}</a></td></td>
-                                    <td>{{ url.original_url }}</td>
+                                    <td class="overflow-url">{{ url.original_url }}</td>
                                     <td>{{ url.last_accessed or "Never"}}</td>
-                                    <td>{{ url.click_count }}</td>
+                                    <td>{{ url.click_count }}{% if url.click_limit %}/{{ url.click_limit }}{% endif %}</td>
                                     <td>{{ url.expiration_date.strftime("%Y-%m-%d %H:%M")}}</td>
                                     <td><a href="#" class="btn btn-sm btn-primary">Edit</a></td>
                                 </tr>
@@ -35,6 +36,12 @@
                             </tbody>
                         </table>
                     </div>
+                    {% if not current_user.is_authenticated %}
+                        <div class="mt-4 text-center">
+                            <p>You are using URL Shortener as a guest, save your URLs to an account below.</p>
+                                <a href="{{ url_for('auth.register') }}" class="btn btn-success">Register</a> <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login</a>
+                        </div>
+                    {% endif %}
                 {% else %}
                     <p>You have no shortened URLs.</p>
                 {% endif %}
