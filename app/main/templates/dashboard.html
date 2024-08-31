@@ -24,7 +24,7 @@
                             </thead>
                             <tbody>
                             {% for url in user_urls %}
-                                <tr>
+                                <tr data-url-code="{{ url.short_url_code }}">
                                     <td><a href="{{ url.short_url_code }}">{{ url.short_url_code }}</a></td>
                                     <td class="overflow-url">{{ url.original_url }}</td>
                                     <td>
@@ -38,8 +38,8 @@
                                     <td>{{ url.expiration_date.strftime("%Y-%m-%d %H:%M")}}</td>
                                     <td>
                                         <button class="btn btn-sm btn-light" onclick="copyURL('{{ url.short_url_code }}')"><i class="bi bi-copy"></i></button>
-                                        <a href="#" class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></a>
-                                        <a href="#" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></a>
+                                        <button class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteURL('{{ url.short_url_code }}')"><i class="bi bi-trash"></i></button>
                                     </td>
                                 </tr>
                             {% endfor %}

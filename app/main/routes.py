@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, abort, current_app, session
+from flask import render_template, request, redirect, abort, current_app, session, jsonify
 from flask_login import current_user
 from . import main
 from .shortener import generate_short_url_code, validate_custom_short_code, generate_qr_code, get_users_urls
@@ -138,6 +138,40 @@ def redirect_url(short_url_code):
 def dashboard():
     user_urls = get_users_urls()
     return render_template("dashboard.html", user_urls=user_urls)
+
+@main.route("/delete", methods=["POST"])
+def delete_url():
+    short_url_code = request.json.get("short_url_code")
+    if not short_url_code:
+        return ({"error": "Short URL code was not specified."}), 400
+
+    urls = current_app.urls
+    url = urls.find_one({"short_url_code": short_url_code})
+
+    if url:
+        if current_user.is_authenticated:
+            if url["user_id"] == current_user.get_id():
+                deleted = urls.delete_one({"short_url_code": short_url_code})
+                if deleted.deleted_count > 0:
+                    return jsonify({"success": True}), 200
+                else:
+                    return jsonify({"error": "Error occurred while removing the shortened URL."}), 500
+            else:
+                return jsonify({"error": "Unauthorised"}), 403
+        else:
+            guest_url_codes = session.get("guest_url_codes", [])
+            if short_url_code in guest_url_codes:
+                deleted = urls.delete_one({"short_url_code": short_url_code})
+                if deleted.deleted_count > 0:
+                    guest_url_codes.remove(short_url_code)
+                    session["guest_url_codes"] = guest_url_codes
+                    session.modified = True
+                    return jsonify({"success": True}), 200
+                else:
+                    return jsonify({"error": "Error occurred while removing the shortened URL."}), 500
+    else:
+        return jsonify({"error": "Shortened URL not found"}), 404
+
 
 @main.route("/about")
 def about():
