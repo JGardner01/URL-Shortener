@@ -38,7 +38,7 @@
                                     <td>{{ url.expiration_date.strftime("%Y-%m-%d %H:%M")}}</td>
                                     <td>
                                         <button class="btn btn-sm btn-light" onclick="copyURL('{{ url.short_url_code }}')"><i class="bi bi-copy"></i></button>
-                                        <button class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editModal" onclick="editURL('{{ url.short_url_code }}', '{{ url.original_url }}', '{{ url.expiration_date.strftime('%Y-%m-%dT%H:%M') }}', '{{ url.click_limit }}')"><i class="bi bi-pencil"></i></button>
                                         <button class="btn btn-sm btn-danger" onclick="deleteURL('{{ url.short_url_code }}')"><i class="bi bi-trash"></i></button>
                                     </td>
                                 </tr>
@@ -55,6 +55,42 @@
                 {% else %}
                     <p>You have no shortened URLs.</p>
                 {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Shortened URL</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <div class="form-group mb-3">
+                            <label for="customShortCode" class="form-label">Custom Short Code</label>
+                            <input type="text" id="customShortCode" class="form-control">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="newExpirationDate" class="form-label">New Expiration Date</label>
+                            <input type="datetime-local" id="newExpirationDate" class="form-control">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="newClickLimit" class="form-label">New Click Limit</label>
+                            <input type="number" id="newClickLimit" class="form-control">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <input type="password" id="newPassword" class="form-control">
+                        </div>
+                        <input type="hidden" id="shortURLCode">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitEditForm()">Save changes</button>
+                </div>
             </div>
         </div>
     </div>

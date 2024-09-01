@@ -139,6 +139,77 @@ def dashboard():
     user_urls = get_users_urls()
     return render_template("dashboard.html", user_urls=user_urls)
 
+@main.route("/edit", methods=["POST"])
+def edit_url():
+    short_url_code = request.json.get("shortURLCode")
+    custom_short_code = request.json.get("customURLCode")
+    new_expiration_date = request.json.get("newExpirationDate")
+    timezone_offset = request.form.get("timezoneOffset")
+    new_click_limit = request.json.get("newClickLimit")
+    new_password = request.json.get("newPassword")
+
+    if not short_url_code:
+        return jsonify({"error": "Short URL code was not specified."}), 400
+
+    urls = current_app.urls
+    url = urls.find_one({"short_url_code": short_url_code})
+
+    if url:
+        edited_data = {}
+
+        if custom_short_code:
+            valid, error_message = validate_custom_short_code(custom_short_code)
+            if not valid:
+                return jsonify({"error": error_message}), 400
+            else:
+                edited_data["short_url_code"] = custom_short_code
+
+        if new_expiration_date:
+            new_expiration_date = datetime.fromisoformat(new_expiration_date)
+            if timezone_offset:
+                new_expiration_date = new_expiration_date - timedelta(minutes=int(timezone_offset))
+            new_expiration_date = new_expiration_date.astimezone(timezone.utc)
+            edited_data["expiration_date"] = new_expiration_date
+
+        if new_click_limit:
+            if new_click_limit.isdigit():
+                edited_data["click_limit"] = int(new_click_limit)
+            else:
+                return jsonify({"error": "Click limit must be an integer."}), 400
+
+        if new_password:
+            bcrypt = current_app.bcrypt
+            edited_data["password"] = bcrypt.generate_password_hash(new_password).decode("utf-8")
+
+        if current_user.is_authenticated:
+            if url["user_id"] == current_user.get_id():
+                edited = urls.update_one({"short_url_code": short_url_code}, {"$set": edited_data})
+                if edited.modified_count > 0:
+                    return jsonify({"success": True}), 200
+                else:
+                    return jsonify({"error": "Error occurred while updating the shortened URL."}), 500
+            else:
+                return jsonify({"error": "Unauthorised"}), 403
+        else:
+            guest_url_codes = session.get("guest_url_codes", [])
+            if short_url_code in guest_url_codes:
+                edited = urls.update_one({"short_url_code": short_url_code}, {"$set": edited_data})
+                if edited.modified_count > 0:
+                    if custom_short_code:
+                        guest_url_codes.remove(short_url_code)
+                        guest_url_codes.append(custom_short_code)
+                        session["guest_url_codes"] = guest_url_codes
+                        session.modified = True
+                    return jsonify({"success": True}), 200
+                else:
+                    return jsonify({"error": "Error occurred while updating the shortened URL."}), 500
+            else:
+                return jsonify({"error": "Unauthorised"}), 403
+    else:
+        return jsonify({"error": "Shortened URL not found"}), 404
+
+
+
 @main.route("/delete", methods=["POST"])
 def delete_url():
     short_url_code = request.json.get("short_url_code")
