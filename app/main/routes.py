@@ -134,17 +134,101 @@ def redirect_url(short_url_code):
     else:
         return abort(404)   #temporary error message for short url not found
 
-@main.route("/dashboard")
+@main.route("/dashboard", methods=["GET"])
 def dashboard():
     user_urls = get_users_urls()
     return render_template("dashboard.html", user_urls=user_urls)
+
+@main.route("/shorten", methods=["POST"])
+def shorten_url():
+    url = request.json.get("url")
+    custom_short_code = request.json.get("customShortCode")
+    expiration_date = request.json.get("expirationDate")
+    timezone_offset = request.json.get("timezoneOffset")
+    click_limit = request.json.get("clickLimit")
+    password = request.json.get("password")
+
+    if not shorten_url:
+        return jsonify({"error": "Short URL code was not specified."}), 400
+
+    #validate URL here
+    if not (url.startswith("http://") or url.startswith(("https://"))):
+        url = "http://" + url
+    if not (validators.url(url)):
+        return jsonify({"error": "Invalid URL provided."}), 400
+
+    #google safe browsing
+    safe, error_message = check_url_safety(url)
+    if not safe:
+        return jsonify({"error": error_message}), 400
+
+    #custom short code
+    if custom_short_code:
+        #validation
+        valid, error_message = validate_custom_short_code(custom_short_code)
+        if not valid:
+            return jsonify({"error": error_message}), 400
+        short_url_code = custom_short_code
+    else:
+        #no custom short code -> generate code
+        short_url_code = generate_short_url_code()
+
+    #URL expiration
+    if expiration_date:
+        expiration_date = datetime.fromisoformat(expiration_date)
+        if timezone_offset:
+            expiration_date = expiration_date - timedelta(minutes=int(timezone_offset))
+        expiration_date = expiration_date.astimezone(timezone.utc)
+    else:
+        expiration_date = datetime.now(timezone.utc) + timedelta(DEFAULT_EXPIRATION)
+
+    #create url data
+    url_data = {
+        "short_url_code":   short_url_code,
+        "original_url":     url,
+        "created_at":       datetime.now(timezone.utc),
+        "expiration_date":  expiration_date,
+        "last_accessed":    None,
+        "click_count":      0
+    }
+
+    #user id/guest
+    if current_user.is_authenticated:
+        url_data["user_id"] = current_user.get_id()
+    else:
+        if "guest_url_codes" not in session:
+            session["guest_url_codes"] = []
+        session["guest_url_codes"].append(short_url_code)
+        session.modified = True
+
+    #click limit
+    if click_limit:
+        if click_limit.isdigit():
+            url_data["click_limit"] = int(click_limit)
+        else:
+            return jsonify({"error": "Click limit must be an integer."}), 400
+
+    #password protection
+    if password:
+        bcrypt = current_app.bcrypt
+        #implement backend validation
+        url_data["password"] = bcrypt.generate_password_hash(password).decode("utf-8")
+
+    #insert to database
+    urls = current_app.urls
+    urls.insert_one(url_data)
+
+    short_url = request.host_url + short_url_code    #domain + code
+    qr = generate_qr_code(short_url)
+
+    return jsonify({"success": True}), 200
 
 @main.route("/edit", methods=["POST"])
 def edit_url():
     short_url_code = request.json.get("shortURLCode")
     custom_short_code = request.json.get("customURLCode")
     new_expiration_date = request.json.get("newExpirationDate")
-    timezone_offset = request.form.get("timezoneOffset")
+    timezone_offset = request.json.get("timezoneOffset")
     new_click_limit = request.json.get("newClickLimit")
     new_password = request.json.get("newPassword")
 
@@ -207,8 +291,6 @@ def edit_url():
                 return jsonify({"error": "Unauthorised"}), 403
     else:
         return jsonify({"error": "Shortened URL not found"}), 404
-
-
 
 @main.route("/delete", methods=["POST"])
 def delete_url():
