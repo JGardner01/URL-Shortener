@@ -21,10 +21,6 @@ function displayShortURL(shortURLCode, originalURL, createdDate, lastAccessed, e
     document.getElementById("displayQRCode").src = "data:image/png;base64," + qr;
 }
 
-function copyURL(urlCode){
-    navigator.clipboard.writeText(window.location.origin + "/" + urlCode)
-}
-
 function submitNewForm() {
     const url = document.getElementById("url").value
     const customShortCode = document.getElementById("customShortCode").value
@@ -50,8 +46,13 @@ function submitNewForm() {
         .then (response => response.json())
         .then(data => {
             if (data.success) {
-                alert("Your URL was shortened successfully ("+ url + ")");
-                location.reload(); //////
+                alert("Your URL was shortened successfully \n("+ url + ")");
+                location.reload();
+
+                //displayShortURL(data.short_url_code, url, data.created_date, null, data.expiration_date, 0, clickLimit, data.qr);
+                //var modal = new bootstrap.Modal(document.getElementById("displayShortUrlModal"));
+                //modal.show();
+
             } else {
                 alert("Error: " + data.error);
             }
@@ -127,6 +128,20 @@ function deleteURL(urlCode){
     }
 }
 
+function shareURL(shortURLCode, qr){
+    document.getElementById("shareShortURL").value = window.location.origin + "/" + shortURLCode;
+    document.getElementById("shareShortURL").href = window.location.origin + "/" + shortURLCode;
+    document.getElementById("shareQRCode").src = "data:image/png;base64," + qr;
+}
+
+function copyURL(urlCode){
+    if (urlCode.startsWith("http")){
+        navigator.clipboard.writeText(urlCode)
+    }
+    else{
+        navigator.clipboard.writeText(window.location.origin + "/" + urlCode)
+    }
+}
 
 function formatDateTime(dateTimeString){
     const dateTime = new Date(dateTimeString);

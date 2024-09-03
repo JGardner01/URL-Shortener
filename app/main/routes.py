@@ -223,10 +223,13 @@ def shorten_url():
     urls = current_app.urls
     urls.insert_one(url_data)
 
-    short_url = request.host_url + short_url_code    #domain + code
-    qr = generate_qr_code(short_url)
-
-    return jsonify({"success": True}), 200
+    return jsonify({
+        "success": True,
+        "short_url_code": short_url_code,
+        "qr_code_image": qr,
+        "created_date": url_data["created_at"].isoformat(),
+        "expiration_date": expiration_date.isoformat()
+    }), 200
 
 @main.route("/edit", methods=["POST"])
 def edit_url():

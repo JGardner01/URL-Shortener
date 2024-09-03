@@ -31,7 +31,12 @@
                             <tbody>
                             {% for url in user_urls %}
                                 <tr data-url-code="{{ url.short_url_code }}">
-                                    <td><a href="{{ url.short_url_code }}">{{ url.short_url_code }}</a></td>
+                                    <td><a href="#"
+                                           data-bs-toggle="modal" data-bs-target="#displayShortUrlModal"
+                                           onclick="displayShortURL('{{ url.short_url_code }}', '{{ url.original_url }}', '{{ url.created_at }}', '{{ url.last_accessed }}','{{ url.expiration_date.strftime('%Y-%m-%dT%H:%M') }}', '{{ url.click_count }}', '{{ url.click_limit }}', '{{ url.qr_code }}')">
+                                        {{ url.short_url_code }}</a></td>
+
+
                                     <td class="overflow-url">{{ url.original_url }}</td>
                                     <td>
                                         {% if url.last_accessed %}
@@ -44,9 +49,9 @@
                                     <td>{{ url.expiration_date.strftime("%d-%m-%Y %H:%M")}}</td>
                                     <td>
                                         <button class="btn btn-sm btn-light" onclick="copyURL('{{ url.short_url_code }}')"><i class="bi bi-copy"></i></button>
+                                        <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#shareModal" onclick="shareURL('{{ url.short_url_code }}', '{{ url.qr_code }}')"><i class="bi bi-share"></i></button>
                                         <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editModal" onclick="editURL('{{ url.short_url_code }}', '{{ url.original_url }}', '{{ url.expiration_date.strftime('%Y-%m-%dT%H:%M') }}', '{{ url.click_limit }}')"><i class="bi bi-pencil"></i></button>
                                         <button class="btn btn-sm btn-danger" onclick="deleteURL('{{ url.short_url_code }}')"><i class="bi bi-trash"></i></button>
-                                        <button data-bs-toggle="modal" data-bs-target="#displayShortUrlModal" onclick="displayShortURL('{{ url.short_url_code }}', '{{ url.original_url }}', '{{ url.created_at }}', '{{ url.last_accessed }}','{{ url.expiration_date.strftime('%Y-%m-%dT%H:%M') }}', '{{ url.click_count }}', '{{ url.click_limit }}', '{{ url.qr_code }}')">open</button>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -79,7 +84,7 @@
                         <label for="displayShortURL" class="form-label">Short URL</label>
                         <div class="input-group">
                             <input type="text" name="displayShortURL" id="displayShortURL" class="form-control" readonly>
-                            <button class="btn btn-outline-secondary" type="button" ><i class="bi bi-copy"></i></button>
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyURL(document.getElementById('displayShortURL').value)"><i class="bi bi-copy"></i></button>
                         </div>
                     </div>
                     <div class="form-group mb-3">
@@ -111,12 +116,59 @@
                             <button class="btn btn-secondary" onclick="downloadQrCode()">Download QR</button>
                         </div>
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    <!--
-                    original url
-                    short url
-                    qr code
-                    -->
+    <!--Share URL Modal-->
+    <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="shareModalLabel">Share Your Short URL</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label for="shareShortURL" class="form-label">Short URL</label>
+                        <div class="input-group">
+                            <input type="text" name="shareShortURL" id="shareShortURL" class="form-control" readonly>
+                            <button class="btn btn-outline-secondary" type="button" onclick="onclick=copyURL(document.getElementById('shareShortURL').value)"><i class="bi bi-copy"></i></button>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="qr-container">
+                            <img id="shareQRCode" alt="QR Code" class="img-fluid" />
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" onclick="copyQrCode()">Copy QR</button>
+                            <button class="btn btn-secondary" onclick="downloadQrCode()">Download QR</button>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-around mb-3">
+                        <button class="btn btn-secondary" onclick="shareEmail(document.getElementById('shareShortURL').value, document.getElementById('shareQRCode').src.split(',')[1])">
+                            <i class="bi bi-envelope"></i>
+                        </button>
+                        <button class="btn btn-info" onclick="shareOnX(document.getElementById('shareShortURL').value)">
+                            <i class="bi bi-twitter"></i>
+                        </button>
+                        <button class="btn btn-primary" onclick="shareOnFacebook(document.getElementById('shareShortURL').value)">
+                            <i class="bi bi-facebook"></i>
+                        </button>
+                        <button class="btn btn-primary" onclick="shareOnLinkedIn(document.getElementById('shareShortURL').value)">
+                            <i class="bi bi-linkedin"></i>
+                        </button>
+                        <button class="btn btn-success" onclick="shareOnWhatsapp(document.getElementById('shareShortURL').value)">
+                            <i class="bi bi-whatsapp"></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="shareOnReddit(document.getElementById('shareShortURL').value)">
+                            <i class="bi bi-reddit"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -200,7 +252,7 @@
                             <input type="number" id="newClickLimit" class="form-control">
                         </div>
                         <div class="form-group mb-3">
-                            <label for="newPassword" class="form-label">Password</label>
+                            <label for="newPassword" class="form-label">New Password</label>
                             <input type="password" name="newPassword" id="newPassword" class="form-control" placeholder="Password"
                                    pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_])(?!.*\s).{8,}$" minlength="8"
                                    title="Password must be at least 8 characters long, include at least one uppercase letter, one lowercase letter, one number, and one special character. No spaces are allowed.">
@@ -218,5 +270,6 @@
 
 
     <script src="{{ url_for('main.static', filename='js/dashboard.js') }}"></script>
+    <script src="{{ url_for('main.static', filename='js/socialMediaSharing.js') }}"></script>
 
 {% endblock %}
