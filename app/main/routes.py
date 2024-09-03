@@ -50,6 +50,9 @@ def index():
         else:
             expiration_date = datetime.now(timezone.utc) + timedelta(DEFAULT_EXPIRATION)
 
+        short_url = request.host_url + short_url_code    #domain + code
+        qr = generate_qr_code(short_url)
+
         #create url data
         url_data = {
             "short_url_code":   short_url_code,
@@ -57,7 +60,8 @@ def index():
             "created_at":       datetime.now(timezone.utc),
             "expiration_date":  expiration_date,
             "last_accessed":    None,
-            "click_count":      0
+            "click_count":      0,
+            "qr_code": qr
         }
 
         #user id/guest
@@ -85,9 +89,6 @@ def index():
         #insert to database
         urls = current_app.urls
         urls.insert_one(url_data)
-
-        short_url = request.host_url + short_url_code    #domain + code
-        qr = generate_qr_code(short_url)
 
         return render_template("index.html", short_url=short_url, qr_code_image=qr)
 
@@ -182,6 +183,9 @@ def shorten_url():
     else:
         expiration_date = datetime.now(timezone.utc) + timedelta(DEFAULT_EXPIRATION)
 
+    short_url = request.host_url + short_url_code    #domain + code
+    qr = generate_qr_code(short_url)
+
     #create url data
     url_data = {
         "short_url_code":   short_url_code,
@@ -189,7 +193,8 @@ def shorten_url():
         "created_at":       datetime.now(timezone.utc),
         "expiration_date":  expiration_date,
         "last_accessed":    None,
-        "click_count":      0
+        "click_count":      0,
+        "qr_code": qr
     }
 
     #user id/guest

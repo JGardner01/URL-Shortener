@@ -1,5 +1,24 @@
-function displayShortURL(){
+function displayShortURL(shortURLCode, originalURL, createdDate, lastAccessed, expirationDate, clickCount, clickLimit, qr){
+    document.getElementById("displayShortURL").value = window.location.origin + "/" + shortURLCode;
+    document.getElementById("displayShortURL").href = window.location.origin + "/" + shortURLCode;
+    document.getElementById("displayOriginalURL").value = originalURL;
+    document.getElementById("displayCreatedDate").value = formatDateTime(createdDate);
 
+    if (lastAccessed !== null && lastAccessed !== undefined && lastAccessed !== "None"){
+        document.getElementById("displayLastAccessed").value = formatDateTime(lastAccessed);
+    } else {
+        document.getElementById("displayLastAccessed").value = "Never";
+    }
+
+    document.getElementById("displayExpirationDate").value = formatDateTime(expirationDate);
+
+    if (clickLimit){
+        document.getElementById("displayClickCount").value = clickCount + "/" + clickLimit;
+    } else{
+        document.getElementById("displayClickCount").value = clickCount;
+    }
+
+    document.getElementById("displayQRCode").src = "data:image/png;base64," + qr;
 }
 
 function copyURL(urlCode){
@@ -12,7 +31,7 @@ function submitNewForm() {
     const expirationDate = document.getElementById("expirationDate").value
     const clickLimit = document.getElementById("clickLimit").value
     const password = document.getElementById("password").value
-    const timezoneOffset = getTimezoneOffset()
+    const timezoneOffset = new Date().getTimezoneOffset();
 
     fetch("/shorten", {
         method: "POST",
@@ -41,19 +60,19 @@ function submitNewForm() {
 }
 
 function editURL(shortURLCode, originalURL, expirationDate, clickLimit){
-    document.getElementById('shortURLCode').value = shortURLCode;
-    document.getElementById('newCustomShortCode').placeholder = shortURLCode;
-    document.getElementById('newExpirationDate').value = expirationDate;
-    document.getElementById('newClickLimit').value = clickLimit || 0;
+    document.getElementById("shortURLCode").value = shortURLCode;
+    document.getElementById("newCustomShortCode").placeholder = shortURLCode;
+    document.getElementById("newExpirationDate").value = expirationDate;
+    document.getElementById("newClickLimit").value = clickLimit || 0;
 }
 
 function submitEditForm() {
-    const shortURLCode = document.getElementById('shortURLCode').value;
-    const customShortCode = document.getElementById('newCustomShortCode').value;
-    const newExpirationDate = document.getElementById('newExpirationDate').value;
-    const newClickLimit = document.getElementById('newClickLimit').value;
-    const newPassword = document.getElementById('newPassword').value;
-    const timezoneOffset = getTimezoneOffset()
+    const shortURLCode = document.getElementById("shortURLCode").value;
+    const customShortCode = document.getElementById("newCustomShortCode").value;
+    const newExpirationDate = document.getElementById("newExpirationDate").value;
+    const newClickLimit = document.getElementById("newClickLimit").value;
+    const newPassword = document.getElementById("newPassword").value;
+    const timezoneOffset = new Date().getTimezoneOffset();
 
     fetch("/edit", {
         method: "POST",
@@ -108,11 +127,14 @@ function deleteURL(urlCode){
     }
 }
 
-function getTimezoneOffset() {
-    const timezoneOffset = new Date().getTimezoneOffset();
-    const timezoneInput = document.createElement("input");
-    timezoneInput.setAttribute("type", "hidden");
-    timezoneInput.setAttribute("name", "timezoneOffset");
-    timezoneInput.setAttribute("value", timezoneOffset);
-    return timezoneInput;
+
+function formatDateTime(dateTimeString){
+    const dateTime = new Date(dateTimeString);
+    const day = String(dateTime.getDay()).padStart(2, '0');
+    const month = String(dateTime.getMonth()).padStart(2, '0');
+    const year = String(dateTime.getFullYear());
+    const hour = String(dateTime.getHours()).padStart(2, '0');
+    const min = String(dateTime.getMinutes()).padStart(2, '0');
+
+    return `${day}-${month}-${year} ${hour}:${min}`
 }

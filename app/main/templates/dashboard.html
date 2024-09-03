@@ -35,17 +35,18 @@
                                     <td class="overflow-url">{{ url.original_url }}</td>
                                     <td>
                                         {% if url.last_accessed %}
-                                            {{ url.last_accessed.strftime("%Y-%m-%d %H:%M") }}
+                                            {{ url.last_accessed.strftime("%d-%m-%Y %H:%M") }}
                                         {% else %}
                                             Never
                                         {% endif %}
                                     </td>
                                     <td>{{ url.click_count }}{% if url.click_limit %}/{{ url.click_limit }}{% endif %}</td>
-                                    <td>{{ url.expiration_date.strftime("%Y-%m-%d %H:%M")}}</td>
+                                    <td>{{ url.expiration_date.strftime("%d-%m-%Y %H:%M")}}</td>
                                     <td>
                                         <button class="btn btn-sm btn-light" onclick="copyURL('{{ url.short_url_code }}')"><i class="bi bi-copy"></i></button>
                                         <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editModal" onclick="editURL('{{ url.short_url_code }}', '{{ url.original_url }}', '{{ url.expiration_date.strftime('%Y-%m-%dT%H:%M') }}', '{{ url.click_limit }}')"><i class="bi bi-pencil"></i></button>
                                         <button class="btn btn-sm btn-danger" onclick="deleteURL('{{ url.short_url_code }}')"><i class="bi bi-trash"></i></button>
+                                        <button data-bs-toggle="modal" data-bs-target="#displayShortUrlModal" onclick="displayShortURL('{{ url.short_url_code }}', '{{ url.original_url }}', '{{ url.created_at }}', '{{ url.last_accessed }}','{{ url.expiration_date.strftime('%Y-%m-%dT%H:%M') }}', '{{ url.click_count }}', '{{ url.click_limit }}', '{{ url.qr_code }}')">open</button>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -65,6 +66,64 @@
         </div>
     </div>
 
+    <!--Display Short URL Modal-->
+    <div class="modal fade" id="displayShortUrlModal" tabindex="-1" aria-labelledby="displayShortUrlModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="displayShortURLModalLabel">Your Short URL</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label for="displayShortURL" class="form-label">Short URL</label>
+                        <div class="input-group">
+                            <input type="text" name="displayShortURL" id="displayShortURL" class="form-control" readonly>
+                            <button class="btn btn-outline-secondary" type="button" ><i class="bi bi-copy"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="displayOriginalURL" class="form-label">Original URL</label>
+                        <input type="text" name="displayOriginalURL" id="displayOriginalURL" class="form-control" readonly>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="displayCreatedDate" class="form-label">Created Date:</label>
+                        <input type="text" name="displayCreatedDate" id="displayCreatedDate" class="form-control" readonly>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="displayLastAccessed" class="form-label">Last Accessed:</label>
+                        <input type="text" name="displayLastAccessed" id="displayLastAccessed" class="form-control" readonly>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="displayExpirationDate" class="form-label">Expiration Date:</label>
+                        <input type="text" name="displayExpirationDate" id="displayExpirationDate" class="form-control" readonly>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="displayClickCount" class="form-label">Click Count:</label>
+                        <input type="text" name="displayClickCount" id="displayClickCount" class="form-control" placeholder="0" readonly>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="qr-container">
+                            <img id="displayQRCode" alt="QR Code" class="img-fluid" />
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" onclick="copyQrCode()">Copy QR</button>
+                            <button class="btn btn-secondary" onclick="downloadQrCode()">Download QR</button>
+                        </div>
+                    </div>
+
+                    <!--
+                    original url
+                    short url
+                    qr code
+                    -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!--Add Another Modal-->
     <div class="modal fade" id="newURLModal" tabindex="-1" aria-labelledby="newURLModalLabel" aria-hidden="true">
