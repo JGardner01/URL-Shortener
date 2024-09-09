@@ -37,7 +37,7 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             {% if current_user.is_authenticated %}
-                                <li><a class="dropdown-item" href="{{ url_for('auth.login') }}">Manage Account</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('auth.manage_account') }}">Manage Account</a></li>
                                 <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a></li>
                             {% else %}
                                 <li><a class="dropdown-item" href="{{ url_for('auth.register') }}">Register</a></li>

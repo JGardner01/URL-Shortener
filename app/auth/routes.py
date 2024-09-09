@@ -76,3 +76,23 @@ def logout():
     logout_user()
     #implement informing user
     return redirect(url_for("main.index"))
+
+@auth.route("/manage_account", methods=["GET"])
+@login_required
+def manage_account():
+    return render_template("manageAccount.html")
+
+@auth.route("/change_username", methods=["POST"])
+@login_required
+def change_username():
+    return
+
+@auth.route("/change_password", methods=["POST"])
+@login_required
+def change_password():
+    return
+
+@auth.route("/delete_account", methods=["POST"])
+@login_required
+def delete_account():
+    return

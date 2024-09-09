@@ -22,7 +22,7 @@
                                title="Password must be at least 8 characters long, include at least one uppercase letter, one lowercase letter, one number, and one special character. No spaces are allowed.">
                     </div>
                     <div class="form-group mb-3">
-                        <label for="confirm_password">Confirm Password</label>
+                        <label for="confirmPassword">Confirm Password</label>
                         <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Register</button>
@@ -34,5 +34,5 @@
         </div>
     </div>
 
-    <script src="{{ url_for('auth.static', filename='js/register.js') }}"></script>
+    <script src="{{ url_for('auth.static', filename='js/checkPasswordsMatch.js') }}"></script>
 {% endblock %}

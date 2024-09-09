@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% set display_navbar = True %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h1 class="display-4 text-center mb-4">Manage Account</h1>
+                <!-- change username -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5>Change Username</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for("auth.change_username")}}">
+                            <div class="form-group mb-3">
+                                <label for="newUsername">New Username:</label>
+                                <input type="text" name="newUsername" id="newUsername" class="form-control" required
+                                       pattern="[A-Za-z][A-Za-z0-9]{2,14}" minlength="3" maxlength="15"
+                                       title="Username must be 3-15 characters long, start with a letter, and contain only letters and numbers.">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Update Username</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- change password -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5>Change Password</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for("auth.change_password")}}" onsubmit="return checkPasswordsMatch()">
+                            <div class="form-group mb-3">
+                                <label for="currentPassword">Current Password:</label>
+                                <input type="password" name="currentPassword" id="currentPassword" class="form-control" required>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="password">New Password:</label>
+                                <input type="password" name="password" id="password" class="form-control" required
+                                       pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_])(?!.*\s).{8,}$" minlength="8"
+                                       title="Password must be at least 8 characters long, include at least one uppercase letter, one lowercase letter, one number, and one special character. No spaces are allowed.">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="confirmPassword">Confirm Password</label>
+                                <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Update Password</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- delete account -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Delete Account</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for("auth.delete_account")}}">
+                            <p class="text-danger text-center">Once you delete your account, this action cannot be reversed. <br>Please be sure before selecting.</p>
+                            <button type="submit" class="btn btn-danger w-100">Delete Account</button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <script src="{{ url_for('auth.static', filename='js/checkPasswordsMatch.js') }}"></script>
+{% endblock %}
