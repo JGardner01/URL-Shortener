@@ -334,6 +334,6 @@ def delete_url():
         return jsonify({"error": "Shortened URL not found"}), 404
 
 
-@main.route("/about")
+@main.route("/about", methods=["GET"])
 def about():
     return render_template("about.html")

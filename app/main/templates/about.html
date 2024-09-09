@@ -1,5 +1,39 @@
 {% extends "base.html" %}
-{% block content %}
 {% set display_navbar = True %}
-    <h1>About</h1>
+{% block content %}
+    <div class="container mt-5 mb-5">
+        <h1 class="display-4 mb-4">About URL Shortener</h1>
+        <p class="lead">
+            URL Shortener helps you to shorten long URLs into shorter, more manageable links, making it easier to share and remember links.
+        </p>
+        <p>
+            This URL Shortener application was created by James Gardner.<br>
+            Relevant Links:
+            <a href="https://github.com/JGardner01/URL-Shortener" target="_blank" class="text-decoration-none fw-bold">Github Repo</a> |
+            <a href="https://jgardner01.github.io/" target="_blank" class="text-decoration-none fw-bold">Portfolio</a>
+        </p>
+
+        <h2 class="h3 mt-5 mb-4">Features</h2>
+        <ul class="list-group mb-4">
+            <li class="list-group-item"><i class="bi bi-table me-2"></i><b>Dashboard:</b> Your URLs can be viewed, edited, deleted, shared and monitored within the dashboard.</li>
+            <li class="list-group-item"><i class="bi bi-person-circle me-2"></i><b>User Accounts:</b> Continue to monitor and save your shortened URLs with an account.</li>
+            <li class="list-group-item"><i class="bi bi-code-slash me-2"></i><b>Customised Short Codes:</b> Shortened links can be customised to be easily memorable.</li>
+            <li class="list-group-item"><i class="bi bi-qr-code-scan me-2"></i><b>QR Code Generation:</b> QR codes are automatically generated for each shortened link.</li>
+            <li class="list-group-item"><i class="bi bi-lock-fill me-2"></i><b>Password Protection:</b> Secure your links by adding a password to control who can access the link.</li>
+            <li class="list-group-item"><i class="bi bi-calendar-check-fill me-2"></i><b>Expiration Dates:</b> A custom expiration date and time can be set, after which the shortened URL will no longer be accessible. Default expiration date is 30 days.</li>
+            <li class="list-group-item"><i class="bi bi-graph-up-arrow me-2"></i><b>Click Tracking:</b> Track how many times your shortened URL has been clicked to monitor usage.</li>
+            <li class="list-group-item"><i class="bi bi-x-circle-fill me-2"></i><b>Click Limits:</b> Limit how many times a shortened URL can be accessed.</li>
+            <li class="list-group-item"><i class="bi bi-google  me-2"></i><b>Google Safe Browsing Integration:</b> All URLs are checked against Google's Safe Browsing database to ensure that shortened links are safe to access.</li>
+        </ul>
+
+        <h2 class="h3 mt-5 mb-4">How to Use</h2>
+        <ol class="list-group list-group-numbered">
+            <li class="list-group-item">Enter the long URL that you would like to be shortened.</li>
+            <li class="list-group-item">Optionally, customise the new URL with a custom short code or add options such as password protection, a custom expiration date, or click limit.</li>
+            <li class="list-group-item">Click "Submit" to generate a completely, unique shortened link and QR code.</li>
+            <li class="list-group-item">Share and use the provided short URL or QR code.</li>
+            <li class="list-group-item">Manage and track your shortened URLs in the dashboard.</li>
+            <li class="list-group-item">Save and continue monitoring your shortened URLs by creating/logging into an account. </li>
+        </ol>
+    </div>
 {% endblock %}

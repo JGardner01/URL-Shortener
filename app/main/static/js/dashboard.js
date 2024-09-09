@@ -19,6 +19,9 @@ function displayShortURL(shortURLCode, originalURL, createdDate, lastAccessed, e
     }
 
     document.getElementById("displayQRCode").src = "data:image/png;base64," + qr;
+    document.getElementById("qrDownload").onclick({
+
+    });
 }
 
 function submitNewForm() {
@@ -141,6 +144,16 @@ function copyURL(urlCode){
     else{
         navigator.clipboard.writeText(window.location.origin + "/" + urlCode)
     }
+}
+
+function copyQR(qr){
+
+}
+
+function openURL(url){
+
+    window.open(url, '_blank');
+
 }
 
 function formatDateTime(dateTimeString){
