@@ -1,5 +1,5 @@
 function getFullURL(shortURLCode){
-    return window.location.origin + '/' + shortURLCode;
+    return shortURLCode;
 }
 
 function shareEmail(shortURLCode, qr) {

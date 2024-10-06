@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, current_app
+from flask import render_template, request, redirect, url_for, current_app, flash
 from flask_login import login_required, login_user, logout_user
 from . import auth
 from .models import User
@@ -74,7 +74,6 @@ def login():
 @login_required
 def logout():
     logout_user()
-    #implement informing user
     return redirect(url_for("main.index"))
 
 @auth.route("/manage_account", methods=["GET"])
@@ -82,6 +81,7 @@ def logout():
 def manage_account():
     return render_template("manageAccount.html")
 
+#to be implemented
 @auth.route("/change_username", methods=["POST"])
 @login_required
 def change_username():

@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="{{ url_for("main.static", filename="css/dashboard.css") }}">
 
     <div class="container-fluid mt-5">
-        <h1 class="mb-4">Dashboard</h1>
+        <h1 class="display-4 mb-4">Dashboard</h1>
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -59,7 +59,7 @@
                         </table>
                     </div>
                     {% if not current_user.is_authenticated %}
-                        <div class="mt-4 text-center">
+                        <div class="mt-4 text-center mb-5">
                             <p>You are using URL Shortener as a guest, save your URLs to an account below.</p>
                                 <a href="{{ url_for('auth.register') }}" class="btn btn-success">Register</a> <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login</a>
                         </div>
@@ -73,7 +73,7 @@
 
     <!--Display Short URL Modal-->
     <div class="modal fade" id="displayShortUrlModal" tabindex="-1" aria-labelledby="displayShortUrlModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="displayShortURLModalLabel">Your Short URL</h5>
@@ -108,14 +108,11 @@
                         <label for="displayClickCount" class="form-label">Click Count:</label>
                         <input type="text" name="displayClickCount" id="displayClickCount" class="form-control" placeholder="0" readonly>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="qr-container">
-                            <img id="displayQRCode" alt="QR Code" class="img-fluid" />
-                        </div>
+                    <div class="form-group text-center align-items-center mb-3">
+                        <img id="displayQRCode" alt="QR Code" class="img-fluid mb-3" />
                         <div>
                             <button class="btn btn-primary" onclick="copyQrCode()">Copy QR</button>
-                            <button class="btn btn-secondary" id="qrDownload" onclick="downloadQrCode()">Download QR</button>
-                            <p><a href="data:image/png;base64,{{ qr_code_image }}" download={{ short_url }}.png class="btn btn-secondary mt-2">Download QR Code</a></p>
+                            <a href="data:image/png;base64,{{ qr_code_image }}" download={{ short_url }}.png class="btn btn-secondary">Download QR Code</a>
                         </div>
                     </div>
                 </div>
@@ -143,32 +140,33 @@
                             <button class="btn btn-outline-secondary" type="button" onclick="onclick=copyURL(document.getElementById('shareShortURL').value)"><i class="bi bi-copy"></i></button>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="qr-container">
+
+
+                    <div class="form-group text-center align-items-center mb-3">
                             <img id="shareQRCode" alt="QR Code" class="img-fluid" />
-                        </div>
                         <div>
                             <button class="btn btn-primary" onclick="copyQrCode()">Copy QR</button>
                             <button class="btn btn-secondary" onclick="downloadQrCode()">Download QR</button>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-around mb-3">
-                        <button class="btn btn-secondary" onclick="shareEmail(document.getElementById('shareShortURL').value, document.getElementById('shareQRCode').src.split(',')[1])">
+
+                    <div class="d-flex justify-content-center mb-3">
+                        <button class="btn btn-secondary btn-sm mx-1" onclick="shareEmail(document.getElementById('shareShortURL').value, document.getElementById('shareQRCode').src.split(',')[1])">
                             <i class="bi bi-envelope"></i>
                         </button>
-                        <button class="btn btn-info" onclick="shareOnX(document.getElementById('shareShortURL').value)">
+                        <button class="btn btn-info btn-sm mx-1" onclick="shareOnX(document.getElementById('shareShortURL').value)">
                             <i class="bi bi-twitter"></i>
                         </button>
-                        <button class="btn btn-primary" onclick="shareOnFacebook(document.getElementById('shareShortURL').value)">
+                        <button class="btn btn-primary btn-sm mx-1" onclick="shareOnFacebook(document.getElementById('shareShortURL').value)">
                             <i class="bi bi-facebook"></i>
                         </button>
-                        <button class="btn btn-primary" onclick="shareOnLinkedIn(document.getElementById('shareShortURL').value)">
+                        <button class="btn btn-primary btn-sm mx-1" onclick="shareOnLinkedIn(document.getElementById('shareShortURL').value)">
                             <i class="bi bi-linkedin"></i>
                         </button>
-                        <button class="btn btn-success" onclick="shareOnWhatsapp(document.getElementById('shareShortURL').value)">
+                        <button class="btn btn-success btn-sm mx-1" onclick="shareOnWhatsapp(document.getElementById('shareShortURL').value)">
                             <i class="bi bi-whatsapp"></i>
                         </button>
-                        <button class="btn btn-danger" onclick="shareOnReddit(document.getElementById('shareShortURL').value)">
+                        <button class="btn btn-danger btn-sm mx-1" onclick="shareOnReddit(document.getElementById('shareShortURL').value)">
                             <i class="bi bi-reddit"></i>
                         </button>
                     </div>
