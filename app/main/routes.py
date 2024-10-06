@@ -96,6 +96,7 @@ def index():
 
 @main.route("/<short_url_code>", methods=["GET", "POST"])
 def redirect_url(short_url_code):
+    #get urls db collection
     urls = current_app.urls
     url = urls.find_one({"short_url_code": short_url_code})
 
@@ -137,11 +138,13 @@ def redirect_url(short_url_code):
 
 @main.route("/dashboard", methods=["GET"])
 def dashboard():
+    #get users db collection
     user_urls = get_users_urls()
     return render_template("dashboard.html", user_urls=user_urls)
 
 @main.route("/shorten", methods=["POST"])
 def shorten_url():
+    #get request input data
     url = request.json.get("url")
     custom_short_code = request.json.get("customShortCode")
     expiration_date = request.json.get("expirationDate")
@@ -223,6 +226,7 @@ def shorten_url():
     urls = current_app.urls
     urls.insert_one(url_data)
 
+    #return new shortened url
     return jsonify({
         "success": True,
         "short_url_code": short_url_code,
@@ -233,6 +237,7 @@ def shorten_url():
 
 @main.route("/edit", methods=["POST"])
 def edit_url():
+    #get edited url data
     short_url_code = request.json.get("shortURLCode")
     custom_short_code = request.json.get("customURLCode")
     new_expiration_date = request.json.get("newExpirationDate")
@@ -240,12 +245,16 @@ def edit_url():
     new_click_limit = request.json.get("newClickLimit")
     new_password = request.json.get("newPassword")
 
+    #check valid
     if not short_url_code:
         return jsonify({"error": "Short URL code was not specified."}), 400
 
+    #get urls db collection
     urls = current_app.urls
     url = urls.find_one({"short_url_code": short_url_code})
 
+    #create new edited data
+    #add edited data to
     if url:
         edited_data = {}
 
@@ -302,6 +311,7 @@ def edit_url():
 
 @main.route("/delete", methods=["POST"])
 def delete_url():
+    #get url data and check if valid
     short_url_code = request.json.get("short_url_code")
     if not short_url_code:
         return ({"error": "Short URL code was not specified."}), 400
@@ -309,9 +319,11 @@ def delete_url():
     urls = current_app.urls
     url = urls.find_one({"short_url_code": short_url_code})
 
+    #check if the url belongs to the user
     if url:
         if current_user.is_authenticated:
             if url["user_id"] == current_user.get_id():
+                #delete url and return message
                 deleted = urls.delete_one({"short_url_code": short_url_code})
                 if deleted.deleted_count > 0:
                     return jsonify({"success": True}), 200
@@ -319,14 +331,18 @@ def delete_url():
                     return jsonify({"error": "Error occurred while removing the shortened URL."}), 500
             else:
                 return jsonify({"error": "Unauthorised"}), 403
+        #check if the url is in the guest session
         else:
             guest_url_codes = session.get("guest_url_codes", [])
             if short_url_code in guest_url_codes:
+                #delete url
                 deleted = urls.delete_one({"short_url_code": short_url_code})
                 if deleted.deleted_count > 0:
+                    #remove from session
                     guest_url_codes.remove(short_url_code)
                     session["guest_url_codes"] = guest_url_codes
                     session.modified = True
+                    #return message
                     return jsonify({"success": True}), 200
                 else:
                     return jsonify({"error": "Error occurred while removing the shortened URL."}), 500
